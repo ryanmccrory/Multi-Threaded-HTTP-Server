@@ -113,7 +113,7 @@ void patch(int32_t cl, char *file_name, uint32_t bytes){
 }
 
 
-
+// Not finished
 void logging(char *buffer){
 	write(log_file, buffer, sizeof(buffer));
 	//write(log_file, buffer, sizeof(file_name));
@@ -318,7 +318,6 @@ void parse (int32_t cl){
 	char *http = (char *) malloc(bytes * sizeof(char));
 	//parse data using sscanf
 	sscanf(buffer, "%s %s %s\r\n", action, file_name, http);
-	cerr << action << " " << file_name << '\n';
 	if (is_log == true){
 		logging(action);
 		logging(file_name);
@@ -343,10 +342,8 @@ void parse (int32_t cl){
 	if (strcmp(action, "PUT") == 0){
 		put(cl, file_name, bytes);
 	} else if (strcmp(action, "GET") == 0){
-		cerr << action << " " << file_name << '\n';
 		get(cl, file_name, bytes);
 	} else if (strcmp(action, "PATCH") == 0){
-		cerr << action << " " << file_name << '\n';
 		patch(cl, file_name, bytes);
 	} else {
 		//if improper message, send error: not put or get
@@ -372,7 +369,6 @@ void* handle_connection(void* arg){
 	not_used++;
 	while (true){
 		//wait for a connection
-		cerr << "handle_connection " << '\n';
 		pthread_cond_wait(&cond_thread, &mutex_thread);
 		pthread_mutex_lock(&mutex_avail);
 		//critical region start
@@ -409,7 +405,6 @@ int main (int argc, char *argv[]){
 	char * mapping_name = nullptr;
 	int32_t num_t = 4;
 	//deal with options
-	cerr << "before otions " << '\n';
 	int option;
 	extern int optind;
 	while ((option = getopt(argc, argv, "a:N:l:")) != -1){
@@ -429,7 +424,6 @@ int main (int argc, char *argv[]){
 				break;
 		}
 	}
-	cerr << "after otions " << '\n';
 	//exit if mapping file doesnt exist
 	if (mapping_name == nullptr){ 
 		cout << "error, no specified mapping file" << "\n";
@@ -461,7 +455,6 @@ int main (int argc, char *argv[]){
 	setsockopt(main_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
 	bind(main_socket, addrs->ai_addr, addrs->ai_addrlen);
 	listen(main_socket, 16);
-	cerr << "before listen " << '\n';
 	// Your code, starting with accept(), goes here
 	// create the log file if -l is specified.
 	if (is_log == true){
@@ -485,7 +478,6 @@ int main (int argc, char *argv[]){
 			read_bytes = pread(mapping_file, buffer2, 128, start_offset);
 		}
 	}
-	cerr << "right before create threads " << '\n';
 	//create worker threads
 	pthread_t *workers = (pthread_t *)malloc(sizeof(pthread_t) * num_t);
 	for (int i = 0; i < num_t; i++){
